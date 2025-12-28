@@ -1,66 +1,55 @@
-# Music Notes - Audio Version Management App
+# Song Notes - Audio Version Management App
 
-A desktop application for managing different versions of audio files with rich notes, tags, ratings, and waveform visualization.
+A web application for managing different versions of audio files with rich notes, tags, ratings, and waveform visualization. Works directly in your browser with local file access.
 
 ## Features
 
 - **Version Management**: Track multiple versions of your songs in organized folders
+- **Multi-Format Support**: Group MP3, FLAC, WAV, and other formats of the same version together
+- **Format Selection**: Switch between formats with file size and bitrate info displayed
 - **Rich Text Notes**: Add timestamped notes with @0:30 syntax to reference specific moments
 - **Tags & Ratings**: Organize versions with custom tags and 1-5 star ratings
 - **Waveform Visualization**: See and navigate audio with visual waveforms
 - **Audio Playback**: Built-in player with skip controls
-- **Local-First**: All data stored locally in SQLite, files stay in place
-- **Image Attachments**: Add reference images to versions (coming soon)
+- **Local-First**: All data stored in browser IndexedDB, files stay in place
+- **Duration Mismatch Warnings**: Alerts when different formats have mismatched durations
+- **Customizable Sorting**: Sort versions by date, name, rating, or note count per folder
 
 ## Tech Stack
 
-- **Electron + React + TypeScript**: Desktop app with modern UI
-- **SQLite + Drizzle ORM**: Local database for metadata
+- **React + TypeScript + Vite**: Modern web app with fast development
+- **Dexie (IndexedDB)**: Local browser database for metadata
+- **File System Access API**: Direct access to local files (Chrome/Edge/Opera)
 - **WaveSurfer.js**: Audio waveform visualization
 - **TailwindCSS**: Styling
 - **Tiptap**: Rich text editor
 - **Zustand**: State management
+- **music-metadata**: Audio file metadata extraction
+- **lucide-react**: Icons
 
 ## Prerequisites
 
-**Important**: This project requires Node.js v20 LTS due to native module compatibility.
-
-- Node.js v20.x (LTS) - **Required** for better-sqlite3 compilation
-- npm or yarn
-
-### Installing the Correct Node Version
-
-If you use `nvm` (Node Version Manager):
-
-```bash
-nvm install 20
-nvm use 20
-```
-
-Or install from [nodejs.org](https://nodejs.org/) - download the v20 LTS version.
+- **Modern Browser**: Chrome, Edge, or Opera (requires File System Access API)
+- Node.js (for development)
 
 ## Setup Instructions
 
 1. **Clone or navigate to the project**:
    ```bash
-   cd claude-music-notes
+   cd song-notes
    ```
 
-2. **Switch to Node v20** (if using nvm):
-   ```bash
-   nvm use
-   ```
-   This will read the `.nvmrc` file and use the correct version.
-
-3. **Install dependencies**:
+2. **Install dependencies**:
    ```bash
    npm install
    ```
 
-4. **Run the development server**:
+3. **Run the development server**:
    ```bash
-   npm run electron:dev
+   npm run dev
    ```
+
+4. **Open in browser**: Navigate to the URL shown in the terminal (usually http://localhost:5173)
 
 The app will launch in development mode with hot reload enabled.
 
@@ -100,49 +89,48 @@ The app will launch in development mode with hot reload enabled.
 ## Project Structure
 
 ```
-/claude-music-notes
+/song-notes
 ├── /src
-│   ├── /main                    # Electron main process
-│   │   ├── main.ts              # Entry point
-│   │   ├── database.ts          # SQLite + Drizzle setup
-│   │   ├── fileWatcher.ts       # Monitors song folders for changes
-│   │   └── ipc.ts               # IPC handlers for renderer communication
-│   ├── /renderer                # React UI
-│   │   ├── App.tsx              # Main app component
-│   │   ├── /components
-│   │   │   ├── SongBrowser.tsx  # Song/version tree view
-│   │   │   ├── VersionView.tsx  # Version details panel
-│   │   │   ├── AudioPlayer.tsx  # Audio player with waveform
-│   │   │   ├── RichTextEditor.tsx # Notes editor with timestamps
-│   │   │   ├── TagManager.tsx   # Tag creation and assignment
-│   │   │   └── RatingSelector.tsx # Star rating component
-│   │   ├── /store
-│   │   │   └── appStore.ts      # Zustand state management
-│   │   └── /hooks
-│   │       └── useIpc.ts        # IPC communication hook
-│   ├── /shared                  # Shared types between main/renderer
-│   │   └── types.ts
-│   └── /db                      # Database schema and migrations
-│       ├── schema.ts
-│       └── /migrations
+│   ├── App.tsx                  # Main app component
+│   ├── main.tsx                 # React entry point
+│   ├── index.css                # Global styles
+│   ├── /components
+│   │   ├── SongBrowser.tsx      # Song/version tree view with sorting
+│   │   ├── VersionView.tsx      # Version details panel
+│   │   ├── AudioPlayer.tsx      # Audio player with waveform
+│   │   ├── RichTextEditor.tsx   # Notes editor with timestamps
+│   │   ├── TagManager.tsx       # Tag creation and assignment
+│   │   ├── RatingSelector.tsx   # Star rating component
+│   │   └── FormatSelector.tsx   # Multi-format dropdown selector
+│   ├── /store
+│   │   └── appStore.ts          # Zustand state management
+│   ├── /hooks
+│   │   └── useDB.ts             # Database operations hook
+│   ├── /lib
+│   │   ├── db.ts                # Dexie database schema and queries
+│   │   ├── fileSystem.ts        # File System Access API utilities
+│   │   ├── audioScanner.ts      # Audio file discovery and metadata
+│   │   ├── formatUtils.ts       # Format grouping and display utilities
+│   └── /types
+│       └── index.ts             # Shared TypeScript types
 ├── /public                      # Static assets
 ├── package.json
-├── vite.config.ts              # Vite configuration
-├── tailwind.config.js          # Tailwind configuration
-└── drizzle.config.ts           # Drizzle ORM configuration
+├── vite.config.ts               # Vite configuration
+└── tailwind.config.js           # Tailwind configuration
 ```
 
-## Database Schema
+## Database Schema (IndexedDB via Dexie)
 
 ### Songs
-- Represents a song project with a watched folder path
+- Represents a song project with a folder handle
+- Has sort preference (by date, name, rating, or notes)
 - Has many versions
 
 ### Versions
-- Individual audio file versions
-- Belongs to a song
-- Has metadata: duration, bitrate, format, rating
-- Has many notes, tags, and images
+- Groups multiple format files of the same version
+- Contains array of formats (mp3, flac, wav, etc.)
+- Tracks selected format index and duration mismatch flag
+- Has rating, notes, and tags
 
 ### Tags
 - Reusable labels with custom colors
@@ -152,18 +140,12 @@ The app will launch in development mode with hot reload enabled.
 - Rich text content with optional timestamp
 - Belongs to a version
 
-### Images
-- Reference images for versions
-- Belongs to a version
-
 ## Development Scripts
 
-- `npm run dev` - Start Vite dev server only
-- `npm run electron:dev` - Start Electron app in development mode
+- `npm run dev` - Start Vite dev server
 - `npm run build` - Build for production
-- `npm run db:generate` - Generate database migrations
-- `npm run db:push` - Push schema changes to database
-- `npm run db:studio` - Open Drizzle Studio (database GUI)
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
 
 ## Future Enhancements
 
@@ -172,24 +154,22 @@ The app will launch in development mode with hot reload enabled.
 - [ ] Export notes as PDF/Markdown
 - [ ] Audio analysis (waveform details, spectrum)
 - [ ] Collaboration features
-- [ ] Plugin system for custom tools
-- [ ] Image attachment UI (schema ready)
 - [ ] Advanced search and filtering
+- [ ] Image attachments for versions
 
 ## Contributing
 
 This project uses:
 - **Modular components** - Each component handles a specific feature
-- **Type-safe IPC** - Centralized channel definitions in `shared/types.ts`
-- **Drizzle ORM** - Type-safe database queries with migrations
+- **Dexie ORM** - Type-safe IndexedDB queries with migrations
 - **Zustand** - Simple, non-boilerplate state management
+- **File System Access API** - Browser-native file access
 
 When adding features:
-1. Add database changes to `src/db/schema.ts` and run `npm run db:generate`
-2. Add IPC channels to `shared/types.ts`
-3. Implement IPC handlers in `src/main/ipc.ts`
-4. Create React components in `src/renderer/components`
-5. Update Zustand store if needed in `src/renderer/store/appStore.ts`
+1. Add database changes to `src/lib/db.ts` (increment version and add migration)
+2. Create React components in `src/components`
+3. Add utility functions to `src/lib` as needed
+4. Update Zustand store if needed in `src/store/appStore.ts`
 
 ## License
 
@@ -197,33 +177,33 @@ MIT - Use freely for personal or commercial projects.
 
 ## Troubleshooting
 
-### "better-sqlite3" compilation errors
+### "Browser Not Supported" error
 
-Make sure you're using Node.js v20 LTS:
-```bash
-node --version  # Should show v20.x.x
-```
+This app requires the File System Access API, which is only available in:
+- Google Chrome
+- Microsoft Edge
+- Opera
 
-If you see v25 or higher, switch to v20:
-```bash
-nvm install 20
-nvm use 20
-npm install
-```
+Safari and Firefox do not currently support this API.
+
+### Permission prompts keep appearing
+
+The browser may require you to re-grant folder access after closing and reopening the app. This is a security feature of the File System Access API.
 
 ### Database errors
 
-Delete the database file and restart:
-```bash
-rm ~/Library/Application\ Support/claude-music-notes/music-notes.db
-npm run electron:dev
-```
+Clear IndexedDB data for the site:
+1. Open browser DevTools (F12)
+2. Go to Application > Storage > IndexedDB
+3. Delete the "MusicNotesDB" database
+4. Refresh the page
 
 ### Audio files not appearing
 
 - Make sure files are in a supported format (MP3, WAV, FLAC, M4A, AAC, OGG, WMA)
-- Check the Electron console for file watcher errors
+- Check the browser console for errors
 - Try removing and re-adding the song folder
+- Ensure you granted read permission when prompted
 
 ## Support
 
