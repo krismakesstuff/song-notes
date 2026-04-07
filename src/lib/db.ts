@@ -258,6 +258,19 @@ export class MusicNotesDB extends Dexie {
       });
     });
 
+    // Version 4: No schema changes — bump to match a previously-deployed version
+    // that was already written to users' IndexedDB instances.
+    this.version(4).stores({
+      songs: '++id, name, folderHandle, createdAt, sortPreference',
+      versions: '++id, songId, versionName, rating, createdAt, modifiedAt',
+      tags: '++id, &name, color',
+      versionTags: '[versionId+tagId], versionId, tagId',
+      notes: '++id, versionId, timestamp, createdAt',
+      images: '++id, versionId, fileName, createdAt',
+      settings: '++id',
+      fileHandles: 'id',
+    });
+
     // Add cascade delete hooks
     this.versions.hook('deleting', (primKey, obj) => {
       // Delete related versionTags

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Paper / document with folded corner -->
+  <path d="M7 3 H20 L25 8 V28 A1 1 0 0 1 24 29 H7 A1 1 0 0 1 6 28 V4 A1 1 0 0 1 7 3 Z"
+        fill="#f5f5f5" stroke="#1f2937" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M20 3 V8 H25" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-linejoin="round"/>
+
+  <!-- Music note: stem + flag + filled note head -->
+  <path d="M14 12 V21" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round"/>
+  <path d="M14 12 C17 13 19 15 19 18" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round"/>
+  <ellipse cx="12.5" cy="21.5" rx="2.8" ry="2.2" fill="#0ea5e9" stroke="#0ea5e9" stroke-width="1"/>
+</svg>

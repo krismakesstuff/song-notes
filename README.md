@@ -1,5 +1,7 @@
 # Song Notes - Audio Version Management App
 
+> **⚠️ Work in Progress** — This project is still under active development. Features may be incomplete, change without notice, or contain bugs. Use at your own risk.
+
 A web application for managing different versions of audio files with rich notes, tags, ratings, and waveform visualization. Works directly in your browser with local file access.
 
 ## Features
