@@ -4,6 +4,8 @@
 
 A web application for managing different versions of audio files with rich notes, tags, ratings, and waveform visualization. Works directly in your browser with local file access.
 
+![Song Notes screenshot](docs/screenshot.png)
+
 ## Features
 
 - **Version Management**: Track multiple versions of your songs in organized folders
